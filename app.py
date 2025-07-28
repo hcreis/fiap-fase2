@@ -1,5 +1,4 @@
 import random
-from matplotlib.pylab import f
 import streamlit as st
 import matplotlib.pyplot as plt
 
