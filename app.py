@@ -24,7 +24,7 @@ PESO_DISTANCIA = 10
 DIVISOR_CUSTO = 1000
 
 
-def gerar_terrenos(qtd=100):
+def gerar_terrenos(qtd=50):
     terrenos = []
     print(
         f"Valor máximo de custo: {int(MAXIMO_CUSTO * 1.3)}\n Valor mínimo de custo: {int(MAXIMO_CUSTO * 0.7)}"
@@ -55,10 +55,9 @@ def gerar_terrenos(qtd=100):
     return terrenos
 
 
-terrenos_todos = gerar_terrenos()
-terrenos = [t for t in terrenos_todos if t[CUSTO] <= MAXIMO_CUSTO]
+terrenos = gerar_terrenos()
+#terrenos = [t for t in terrenos_todos if t[CUSTO] <= MAXIMO_CUSTO]
 
-globalSelecionados = []
 def avaliar(individuo):
     custo_total = 0
     impacto_total = 0
@@ -80,7 +79,6 @@ def avaliar(individuo):
             mobilidade_total += terreno[MOBILIDADE]
             infraestrutura_total += terreno[INFRAESTRUTURA]
             selecionados += 1
-            globalSelecionados.append(i)
 
     if selecionados == 0:
         return 0
@@ -169,8 +167,8 @@ def algoritmo_genetico(geracoes, tamanho_pop):
 
 st.title("Algoritmo Genético para Seleção de Terrenos")
 
-geracoes = st.slider("Número de Gerações", 1, 100, 80)
-tamanho_pop = st.slider("Tamanho da População", 2, 100, 50)
+geracoes = st.slider("Número de Gerações", 1, 5000, 4999)
+tamanho_pop = st.slider("Tamanho da População", 2, 500, 499)
 
 if st.button("Executar Algoritmo Genético"):
     st.write("Executando... isso pode levar alguns segundos.")
