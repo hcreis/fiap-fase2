@@ -2,7 +2,10 @@ import random
 import streamlit as st
 import matplotlib.pyplot as plt
 
-# Constantes
+# Parâmetros do Algoritmo Genético
+MIN_TERRAINS = 3  # Mínimo de terrenos a selecionar
+MAX_TERRAINS = 5  # Máximo de terrenos a selecionar
+
 CUSTO = 0
 IMPACTO_AMBIENTAL = 1
 VALORIZACAO = 2
@@ -24,13 +27,15 @@ PESO_DISTANCIA = 10
 DIVISOR_CUSTO = 1000
 
 
+# Passo 1: Definição do Problema
+# O problema consiste em selecionar um subconjunto de terrenos que otimize critérios como custo, distância ao centro,
+# impacto ambiental, acesso a transporte e infraestrutura, respeitando restrições de orçamento, número de terrenos
+# (mínimo e máximo) e infraestrutura média mínima. Cada terreno é representado como um dicionário com atributos.
+# Aumentamos para 50 terrenos para tornar a execução mais complexa e perceptível.
 def gerar_terrenos(qtd=50):
     terrenos = []
-    print(
-        f"Valor máximo de custo: {int(MAXIMO_CUSTO * 1.3)}\n Valor mínimo de custo: {int(MAXIMO_CUSTO * 0.7)}"
-    )
     for _ in range(qtd):
-        custo = random.randint(int(MAXIMO_CUSTO * 0.7), int(MAXIMO_CUSTO * 1.3))
+        custo = random.randint(int(MAXIMO_CUSTO * 0.7), int(MAXIMO_CUSTO))
         impacto_ambiental = random.randint(1, 10)
         valorizacao = random.randint(5, 50)
         casas = random.randint(5, 30)
@@ -56,8 +61,24 @@ def gerar_terrenos(qtd=50):
 
 
 terrenos = gerar_terrenos()
-#terrenos = [t for t in terrenos_todos if t[CUSTO] <= MAXIMO_CUSTO]
 
+# Passo 2: Representação dos Indivíduos (Codificação)
+# Cada indivíduo é uma lista binária onde 1 indica que o terreno está selecionado e 0 indica que não está.
+# A codificação garante que o número de terrenos selecionados esteja entre MIN_TERRAINS e MAX_TERRAINS.
+def criar_individuo():
+    # Passo 3: Inicialização da População
+    # Cria uma população inicial de indivíduos aleatórios, cada um com 3 a 5 terrenos selecionados.
+    # Usa random.sample para evitar repetições e garantir diversidade na população inicial.
+    num_terrains = random.randint(MIN_TERRAINS, MAX_TERRAINS)
+    individual = [0] * len(terrenos)
+    selected_indices = random.sample(range(len(terrenos)), num_terrains)
+    for idx in selected_indices:
+        individual[idx] = 1
+    return individual
+
+# Passo 4: Cálculo da Função de Aptidão (Fitness Function)
+# Avalia a qualidade de cada indivíduo com base em cinco critérios: custo, distância ao centro,
+# impacto ambiental, acesso a transporte e infraestrutura. Penaliza soluções que violam restrições.
 def avaliar(individuo):
     custo_total = 0
     impacto_total = 0
@@ -90,12 +111,6 @@ def avaliar(individuo):
     media_mobilidade = mobilidade_total / selecionados
     media_infra = infraestrutura_total / selecionados
 
-    # print(
-    #     f"Custo Total: {media_custo} -> {media_custo > MAXIMO_CUSTO}\n"
-    #     f"Valorização Total: {media_valorizacao} -> {media_valorizacao < MINIMO_VALORIZACAO}\n"
-    #     f"Casas Total: {media_casas} -> {media_casas < MINIMO_CASAS}\n"
-    # )
-
     if (
         media_custo > MAXIMO_CUSTO
         or media_valorizacao < MINIMO_VALORIZACAO
@@ -116,11 +131,18 @@ def avaliar(individuo):
 
     return fitness
 
+## Passo 5: Seleção por Torneio
+# Seleciona o melhor indivíduo de um torneio entre k competidores aleatórios da população
+# Isso garante diversidade genética e evita que indivíduos com fitness muito baixo sejam selecionados.
+def torneio(populacao, k=3):
+    # Seleciona k indivíduos aleatórios e retorna o melhor entre eles
+    competidores = random.sample(populacao, k)
+    melhor = max(competidores, key=avaliar)
+    return melhor
 
-def criar_individuo():
-    return [random.randint(0, 1) for _ in range(len(terrenos))]
-
-
+# Passo 6: Cruzamento (Uniform Crossover)
+# Realiza o cruzamento entre dois pais para gerar dois filhos. Cada gene é escolhido aleatoriamente de um dos pais.
+# Isso garante que os filhos herdem características de ambos os pais
 def cruzar(pai1, pai2):
     filho1 = []
     filho2 = []
@@ -133,57 +155,89 @@ def cruzar(pai1, pai2):
             filho2.append(g1)
     return filho1, filho2
 
-
+# Passo 7: Como estamos trabalho com representações binárias, o uso da Bit Flip Mutation é o mais indicado pois, um gene aleatório
+# de 0 para 1 ou de 1 para 0, garantindo que o número de terrenos selecionados
+# ainda esteja dentro dos limites definidos.
 def mutar(individuo):
     i = random.randint(0, len(individuo) - 1)
     individuo[i] = 1 - individuo[i]
 
+# Passo 8: Extração de Terrenos Válidos
+# Extrai os terrenos válidos de um indivíduo, ou seja, aqueles que foram selecionados
+# e que atendem aos critérios de qualidade definidos na função de avaliação.
+# Se o indivíduo for inválido (fitness 0), retorna uma lista vazia.
+def extrair_terrenos_validos(individuo):
+    if avaliar(individuo) == 0:
+        return []  # indivíduo inválido, retorna lista vazia
+    return [terrenos[i] for i, gene in enumerate(individuo) if gene == 1]
 
-def algoritmo_genetico(geracoes, tamanho_pop):
+# Passo 9: Algoritmo Genético
+# Implementa o algoritmo genético completo, incluindo inicialização, seleção, cruzamento e mutação.
+# O algoritmo itera por um número definido de gerações, melhorando a população a cada iteração.
+# A cada geração, a população é ordenada por fitness e os melhores indivíduos são selecionados
+# para gerar a próxima geração. O melhor indivíduo é retornado ao final do processo.
+def algoritmo_genetico(geracoes, tamanho_pop, k_torneio):
     populacao = [criar_individuo() for _ in range(tamanho_pop)]
 
     for _ in range(geracoes):
+        # Ordena a população por fitness decrescente
         populacao.sort(key=avaliar, reverse=True)
-        nova_populacao = populacao[:2]
+        
+        nova_populacao = [populacao[0]]
 
         while len(nova_populacao) < tamanho_pop:
-            pai1 = random.choice(populacao[:5])
-            pai2 = random.choice(populacao[:5])
+            pai1 = torneio(populacao, k_torneio)
+            pai2 = torneio(populacao, k_torneio)
+
             filho1, filho2 = cruzar(pai1, pai2)
+
             if random.random() < 0.1:
                 mutar(filho1)
             if random.random() < 0.1:
                 mutar(filho2)
+
             nova_populacao.extend([filho1, filho2])
 
-        populacao = nova_populacao
+        populacao = nova_populacao[:tamanho_pop]
 
     melhor = max(populacao, key=avaliar)
     print(f"Melhor indivíduo: {melhor} com fitness {avaliar(melhor)}")
     return melhor
 
 
-# --- Streamlit Interface ---
-
+# Passo 10: Visualização dos Resultados
+# A visualização dos resultados é feita usando Streamlit para criar uma interface interativa.
 st.title("Algoritmo Genético para Seleção de Terrenos")
 
-geracoes = st.slider("Número de Gerações", 1, 5000, 4999)
-tamanho_pop = st.slider("Tamanho da População", 2, 500, 499)
+geracoes = st.slider("Número de Gerações", 1, 4999, 80)
+tamanho_pop = st.slider("Tamanho da População", 2, 499, 50)
+k_torneio = st.slider("Número de competidores no Torneio (k)", min_value=2, max_value=10, value=3)
 
 if st.button("Executar Algoritmo Genético"):
     st.write("Executando... isso pode levar alguns segundos.")
-    melhor = algoritmo_genetico(geracoes, tamanho_pop)
+    melhor = algoritmo_genetico(geracoes, tamanho_pop, k_torneio)
     fitness = avaliar(melhor)
-    st.write(f"**Fitness (qualidade):** {fitness:.2f}")
+    # st.write(f"**Fitness (qualidade):** {fitness:.2f}")
     st.write(f"**Quantidade terrenos escolhidos:** {sum(melhor):.2f}")
 
     # Extrair custos dos terrenos selecionados
-    custos = [terrenos[i][CUSTO] for i, gene in enumerate(melhor) if gene == 1]
-    indices = [i for i, gene in enumerate(melhor) if gene == 1]
+    terrenos_validos = extrair_terrenos_validos(melhor)
+    custos = [t[CUSTO] for t in terrenos_validos]
+
+    # Criar dicionário de busca rápida
+    terrenos_dict = {tuple(terreno): i for i, terreno in enumerate(terrenos)}
+    # Procurar índices
+    indices = [terrenos_dict.get(tuple(tv), -1) for tv in terrenos_validos]
 
     if custos:
         fig, ax = plt.subplots(figsize=(18, 8))
-        ax.bar(range(len(custos)), custos, tick_label=indices, color='skyblue', edgecolor='black')
+        ax.bar(
+            range(len(custos)),
+            custos,
+            tick_label=indices,
+            color="skyblue",
+            edgecolor="black",
+        )
         ax.set_xlabel("Índice do Terreno")
         ax.set_ylabel("Custo (R$)")
         ax.set_title("Custos dos Terrenos Selecionados")
