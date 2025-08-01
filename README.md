@@ -2,7 +2,7 @@
 
 Olá! Este projeto foi criado com o objetivo de aplicar conceitos de **Inteligência Artificial**, mais especificamente **Algoritmos Genéticos**, para auxiliar na **escolha de terrenos ideais** considerando múltiplos critérios: custo, impacto ambiental, valorização futura, entre outros.
 
-A aplicação foi desenvolvida usando **Python** com **Streamlit** para interface interativa e **matplotlib** para visualização gráfica. É uma simulação didática e poderosa para entender como técnicas de otimização podem resolver problemas complexos de decisão.
+A aplicação foi desenvolvida usando **Python** com **Streamlit** para interface interativa e **matplotlib** para visualização gráfica.
 
 O problema consiste em selecionar um subconjunto de terrenos que otimize critérios como custo, distância ao centro, impacto ambiental, acesso a transporte e infraestrutura, respeitando restrições de orçamento, número de terrenos (mínimo e máximo) e infraestrutura média mínima. Cada terreno é representado como um dicionário com atributos.
 
@@ -23,9 +23,9 @@ A seleção dos indivíduos (soluções) é feita com **torneio com elitismo**, 
 ## 🧩 Principais componentes
 
 - `avaliar(individuo)`: função de fitness que calcula a qualidade de cada solução.
-- `selecionaPais(populacao)`: faz a seleção por torneio, priorizando indivíduos mais aptos.
-- `cruzar(pai1, pai2)`: faz o cruzamento genético, gerando novos filhos.
-- `mutar(individuo)`: aplica mutação aleatória para manter diversidade na população.
+- `selecionaPais(populacao)`: faz a seleção por torneio, priorizando indivíduos mais aptos. ( Algoritmo escolhido: Torneio com Elitismo )
+- `cruzar(pai1, pai2)`: faz o cruzamento genético, gerando novos filhos. ( Algoritmo escolhido: Cruzamento uniforme (uniform crossover) )
+- `mutar(individuo)`: aplica mutação aleatória para manter diversidade na população. ( Algoritmo escolhido: Bit Flip Mutation uso representação binária  )
 - `extrair_terrenos_validos(individuo)`: garante que apenas terrenos realmente escolhidos e válidos sejam considerados nos gráficos e resultados.
 
 ---
