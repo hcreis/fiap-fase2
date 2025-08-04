@@ -1,6 +1,5 @@
 import random
 import streamlit as st
-import matplotlib.pyplot as plt
 import pandas as pd
 
 
@@ -8,8 +7,8 @@ evolucao_fitness = []
 custos_geracao = []
 
 # Parâmetros do Algoritmo Genético
-MIN_TERRAINS = 30  # Mínimo de terrenos a selecionar
-MAX_TERRAINS = 50  # Máximo de terrenos a selecionar
+MIN_TERRAINS = 3  # Mínimo de terrenos a selecionar
+MAX_TERRAINS = 5  # Máximo de terrenos a selecionar
 
 CUSTO = 0
 IMPACTO_AMBIENTAL = 1
@@ -36,7 +35,8 @@ DIVISOR_CUSTO = 1000
 # O problema consiste em selecionar um subconjunto de terrenos que otimize critérios como custo, distância ao centro,
 # impacto ambiental, acesso a transporte e infraestrutura, respeitando restrições de orçamento, número de terrenos
 # (mínimo e máximo) e infraestrutura média mínima. Cada terreno é representado como um dicionário com atributos.
-# Aumentamos para 50 terrenos para tornar a execução mais complexa e perceptível.
+
+
 def gerar_terrenos(num_terrenos):
     terrenos = []
     for _ in range(num_terrenos):
@@ -218,7 +218,6 @@ def avaliarMelhor(individuo):
     )
 
 
-# Passo 9: Algoritmo Genético
 # Implementa o algoritmo genético completo, incluindo inicialização, seleção, cruzamento e mutação.
 # O algoritmo itera por um número definido de gerações, melhorando a população a cada iteração.
 # A cada geração, a população é ordenada por fitness e os melhores indivíduos são selecionados
@@ -227,7 +226,6 @@ def algoritmo_genetico(geracoes, tamanho_pop, k_torneio):
     populacao = [criar_individuo() for _ in range(tamanho_pop)]
     status = st.empty()
     for generation in range(geracoes):
-        # Ordena a população por fitness decrescente
         populacao.sort(key=avaliar, reverse=True)
 
         nova_populacao = [populacao[0]]
@@ -250,8 +248,6 @@ def algoritmo_genetico(geracoes, tamanho_pop, k_torneio):
     melhor = max(populacao, key=avaliar)
     return melhor
 
-
-# Passo 10: Visualização dos Resultados
 # A visualização dos resultados é feita usando Streamlit para criar uma interface interativa.
 st.title("Algoritmo Genético para Seleção de Terrenos")
 num_terrenos = st.slider("Número de Terrenos", 100, 500, 10)
