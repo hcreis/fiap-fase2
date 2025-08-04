@@ -1,32 +1,51 @@
 # 🧠 Seleção Inteligente de Terrenos com Algoritmo Genético
 
-Olá! Este projeto foi criado com o objetivo de aplicar conceitos de **Inteligência Artificial**, mais especificamente **Algoritmos Genéticos**, para auxiliar na **escolha de terrenos ideais** considerando múltiplos critérios: custo, impacto ambiental, valorização futura, entre outros.
+Este projeto aplica conceitos de **Inteligência Artificial**, especialmente **Algoritmos Genéticos**, para apoiar **decisores públicos na seleção ideal de terrenos** destinados à habitação social. A ideia é considerar múltiplos critérios (como custo, impacto ambiental, valorização, número de casas, infraestrutura etc.) e, com base neles, encontrar a melhor combinação possível.
 
-A aplicação foi desenvolvida usando **Python** com **Streamlit** para interface interativa e **matplotlib** para visualização gráfica.
-
-O problema consiste em selecionar um subconjunto de terrenos que otimize critérios como custo, distância ao centro, impacto ambiental, acesso a transporte e infraestrutura, respeitando restrições de orçamento, número de terrenos (mínimo e máximo) e infraestrutura média mínima. Cada terreno é representado como um dicionário com atributos.
+A aplicação foi desenvolvida em **Python**, com interface via **Streamlit** e visualizações com **pandas** e **dataframes interativos**.
 
 ---
 
-## 🚀 Como funciona
+## 🧩 O Problema
 
-A lógica principal gira em torno de um Algoritmo Genético, que simula o processo de evolução natural. Ele tenta encontrar, dentre todos os terrenos disponíveis, a **combinação ideal de terrenos** que:
+O desafio é escolher um subconjunto de terrenos que **maximizem o benefício urbano e habitacional** e, ao mesmo tempo, respeitem:
 
-- **Maximizem a valorização** e o número de casas possíveis;
-- **Minimizem o custo** e o impacto ambiental;
-- Respeitem limites como orçamento máximo e impacto permitido.
+- Custos máximos;
+- Número mínimo e máximo de terrenos;
+- Mínimo de valorização e casas possíveis por terreno.
 
-A seleção dos indivíduos (soluções) é feita com **torneio com elitismo**, garantindo que as melhores soluções sejam preservadas a cada geração.
+Cada terreno é representado como uma lista de atributos (custo, impacto, valorização, casas, distância ao centro, mobilidade urbana e infraestrutura).
 
 ---
 
-## 🧩 Principais componentes
+## 🚀 Solução: Algoritmo Genético
 
-- `avaliar(individuo)`: função de fitness que calcula a qualidade de cada solução.
-- `selecionaPais(populacao)`: faz a seleção por torneio, priorizando indivíduos mais aptos. ( Algoritmo escolhido: Torneio com Elitismo )
-- `cruzar(pai1, pai2)`: faz o cruzamento genético, gerando novos filhos. ( Algoritmo escolhido: Cruzamento uniforme (uniform crossover) )
-- `mutar(individuo)`: aplica mutação aleatória para manter diversidade na população. ( Algoritmo escolhido: Bit Flip Mutation uso representação binária  )
-- `extrair_terrenos_validos(individuo)`: garante que apenas terrenos realmente escolhidos e válidos sejam considerados nos gráficos e resultados.
+Utilizamos Otimização combinatória, como no problema do caixeiro viajante,  a solução visa auxiliar os gestores em relação a politicas publicas de moradia, no que diz respeito a escolha de locais para a construção de moradias populares. 
+
+### ⚙️ Componentes principais do algoritmo:
+
+- **Representação**: cada indivíduo é uma lista binária (0 = terreno não selecionado, 1 = selecionado).
+- **Função de avaliação (`avaliar`)**: calcula um score para cada indivíduo com base nos critérios definidos.
+- **Seleção (`torneio`)**: usa o algoritmo de **torneio com elitismo**, escolhendo os melhores entre grupos aleatórios.
+- **Cruzamento (`cruzar`)**: implementa o **cruzamento uniforme (uniform crossover)**, trocando genes entre dois pais para formar dois filhos.
+- **Mutação (`mutar`)**: utiliza **Bit Flip Mutation** (inversão binária) para manter diversidade genética na população.
+- **Correção (`ajustar_selecao`)**: garante que o número de terrenos selecionados permaneça entre os limites mínimo e máximo.
+
+---
+
+## 📊 Interface e Visualização
+
+Durante a execução da aplicação, você poderá:
+
+- Ajustar parâmetros como:
+  - Número de terrenos disponíveis;
+  - Tamanho da população;
+  - Número de gerações;
+  - Número de competidores do torneio.
+- Ver em tempo real:
+  - Estatísticas médias dos terrenos escolhidos;
+  - Aptidão da solução;
+  - Tabela com os terrenos selecionados, incluindo custo formatado, valorização e número de casas.
 
 ---
 
@@ -34,7 +53,7 @@ A seleção dos indivíduos (soluções) é feita com **torneio com elitismo**, 
 
 ### 1. Clone o repositório
 ```bash
-git git@github.com:hcreis/fiap-fase2.git
+git clone git@github.com:hcreis/fiap-fase2.git
 cd fiap-fase2
 ```
 
@@ -60,28 +79,18 @@ streamlit run app.py
 ## 🧰 Tecnologias utilizadas
 
 - Python 3
-- Streamlit (interface)
-- matplotlib (gráficos)
+- Streamlit (interface interativa)
+- pandas (manipulação e exibição de dados)
 - Algoritmos Genéticos (implementação manual)
 
 ---
 
-## 📊 Exemplo de execução
+## 👥 Equipe
 
-Durante a execução, você poderá:
+- **Helen de Cassia dos Reis Cruz**  
+  - E-mail: helen1705@hotmail.com  
+  - Registro: RM364533
 
-- Ajustar os parâmetros do algoritmo via sliders (número de gerações, taxa de mutação, etc.)
-- Visualizar em tempo real os terrenos selecionados no gráfico
-- Ver quais terrenos foram escolhidos e como eles performam nos critérios definidos
-
----
-
-## 📫 Contato
-
-- Nome: Helen de Cassia dos Reis Cruz
-- E-mail: helen1705@hotmail.com
-- Registro: RM364533
-
-- Nome: Leandro Bernardo dos Santos
-- E-mail: leandro.bernardos@gmail.com
-- Registro: RM364534
+- **Leandro Bernardo dos Santos**  
+  - E-mail: leandro.bernardos@gmail.com  
+  - Registro: RM364534
